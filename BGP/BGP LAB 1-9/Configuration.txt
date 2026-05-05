@@ -1,0 +1,565 @@
+
+Lab # 1 - Configuring Base BGP Topology – eBGP & iBGP
+Lab # 2 - Configuring BGP Multi-Path – eBGP – iBGP
+Lab # 3 - Configuring to Redistribute iBGP Routes into IGP
+Lab # 4 - Configuring BGP Route Reflector with Next-Hop Changed
+Lab # 5 - Configuring BGP Conditional Advertisement(R7&R8)
+Lab # 6 - Route Filtering using AS Path-Filter
+Lab # 7 - Configuring Route Aggregation – Summary Only & AS-Set Option
+Lab # 8 - Configuring Route Aggregation – Manual Filtering
+Lab # 9 - Configuring Route Aggregation – Suppress Maps
++++++++++++++++++++++++++++++++++++++++++++++++++++
+R10
+-------
+ int lo 0
+ ip add 150.1.10.10 255.255.255.255
+
+ int e0/0
+ ip add 192.168.101.10 255.255.255.0
+ no sh 
+
+ int e0/1
+ ip add 192.168.102.10 255.255.255.0
+ no sh 
+++++++++++++++++++++++++++++++++++++
+R1
+-------
+ int lo 0
+ ip add 150.1.1.1 255.255.255.255
+
+int lo 10 
+ip add 10.1.1.1 255.255.255.255
+ 
+ int e0/0
+ ip add 192.168.13.1 255.255.255.0
+ no sh 
+
+ int e0/1
+ ip add 192.168.12.1 255.255.255.0
+ no sh 
+
+int e0/2
+ ip add 192.168.101.1 255.255.255.0
+ no sh 
+++++++++++++++++++++++++++++++++++++++++++
+R2
+-------
+ int lo 0
+ ip add 150.1.2.2 255.255.255.255
+
+int lo 10 
+ip add 10.2.2.2 255.255.255.255
+ 
+ int e0/0
+ ip add 192.168.24.2 255.255.255.0
+ no sh 
+
+ int e0/1
+ ip add 192.168.12.2 255.255.255.0
+ no sh 
+
+int e0/2
+ ip add 192.168.102.2 255.255.255.0
+ no sh 
++++++++++++++++++++++++++++++++++++++
+R3
+-------
+ int lo 0
+ ip add 150.1.3.3 255.255.255.255
+
+
+ int e0/0
+ ip add 192.168.13.3 255.255.255.0
+ no sh 
+
+ int e0/1
+ ip add 192.168.34.3 255.255.255.0
+ no sh 
+
+int e0/2
+ ip add 192.168.35.3 255.255.255.0
+ no sh 
+
+int e0/3
+ ip add 192.168.36.3 255.255.255.0
+ no sh 
+++++++++++++++++++++++++++++++++++++
+R4
+-------
+ int lo 0
+ ip add 150.1.4.4 255.255.255.255
+
+
+ int e0/0
+ ip add 192.168.24.4 255.255.255.0
+ no sh 
+
+ int e0/1
+ ip add 192.168.34.4 255.255.255.0
+ no sh 
+
+int e0/2
+ ip add 192.168.47.4 255.255.255.0
+ no sh 
+
+int e0/3
+ ip add 192.168.48.4 255.255.255.0
+ no sh 
+++++++++++++++++++++++++++++++++++++
+R5
+-------
+ int lo 0
+ ip add 150.1.5.5 255.255.255.0
+
+ int e0/0
+ ip add 192.168.35.5 255.255.255.0
+ no sh 
+++++++++++++++++++++++++++++++++++++
+R6
+-------
+ int lo 0
+ ip add 150.1.6.6 255.255.255.255
+
+ int e0/0
+ ip add 192.168.36.6 255.255.255.0
+ no sh 
+++++++++++++++++++++++++++++++++++++
+R7
+-------
+ int lo 0
+ ip add 150.1.7.7 255.255.255.255
+
+
+ int e0/0
+ ip add 192.168.47.7 255.255.255.0
+ no sh 
+
+ int e0/1
+ ip add 192.168.79.7 255.255.255.0
+ no sh 
+++++++++++++++++++++++++++++++++++++
+R8
+-------
+ int lo 0
+ ip add 150.1.8.8 255.255.255.255
+
+
+ int e0/0
+ ip add 192.168.48.8 255.255.255.0
+ no sh 
+
+ int e0/1
+ ip add 192.168.89.8 255.255.255.0
+ no sh 
+++++++++++++++++++++++++++++++++++++
+R9
+-------
+ int lo 0
+ ip add 150.1.9.9  255.255.255.255
+
+
+ int e0/0
+ ip add 192.168.79.9  255.255.255.0
+ no sh 
+
+ int e0/1
+ ip add 192.168.89.9  255.255.255.0
+ no sh 
+
+int e0/2
+ ip add 192.168.119.9  255.255.255.0
+ no sh 
+++++++++++++++++++++++++++++++++++++
+R11
+-------
+ int lo 0
+ ip add 150.1.11.11  255.255.255.255
+
+
+ int e0/0
+ ip add 192.168.119.11 255.255.255.0
+ no sh 
++++++++++++++++++++++++++++++++++++++++++++++++
+1. Configuring the connection between AS 100 & AS 12
+===============================================
+R10
+-----
+router bgp 100
+ neighbor 192.168.101.1 remote-as 12
+ neighbor 192.168.102.2 remote-as 12
+ network 150.1.10.10 mask 255.255.255.255
+-----
+R1
+-----
+router bgp 12
+ neighbor 192.168.101.10 remote-as 100
+ network 150.1.1.1 mask 255.255.255.255
+-----
+R2
+-----
+router bgp 12
+ neighbor 192.168.102.10 remote-as 100
+ network 150.1.2.2 mask 255.255.255.255
++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2. Configuring iBGP within AS 12
+=======================================================
+ R1
+-----
+Interface Loopback10
+ ip address 10.1.1.1 255.255.255.255
+
+router eigrp 12
+ network 192.168.12.0
+ network 10.0.0.0
+
+router bgp 12
+ neighbor 10.2.2.2 remote-as 12
+ neighbor 10.2.2.2 update-source Loopback10
+ neighbor 10.2.2.2 next-hop-self
+---------
+R2
+--------
+Interface Loopback10
+ ip address 10.2.2.2  255.255.255.255
+!
+router eigrp 12
+ network 192.168.12.0
+ network 10.0.0.0
+!
+router bgp 12
+ neighbor 10.1.1.1 remote-as 12
+ neighbor 10.1.1.1 update-source Loopback10
+ neighbor 10.1.1.1 next-hop-self
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+3. Configuring the connection between AS 1000 & AS 12
+=======================================================
+R1
+-----
+ router bgp 12
+ neighbor 192.168.13.3 remote-as 1000
+
+--------
+R2
+-------
+ router bgp 12
+ neighbor 192.168.24.4 remote-as 1000
+
+--------
+R3
+---------
+
+router bgp 1000
+ neighbor 192.168.13.1 remote-as 12
+ network 150.1.3.3 mask 255.255.255.255
+
+-----
+R4
+-----
+router bgp 1000
+ neighbor 192.168.24.2 remote-as 12
+ network 150.1.4.4 mask 255.255.255.255
++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+4. Configure iBGP within AS 1000 using Physical IPs (R3,R4,R5)  R3 RR
+===============================================================
+R3
+-----
+router bgp 1000
+ neighbor 192.168.34.4 remote-as 1000
+ neighbor 192.168.34.4 next-hop-self
+ neighbor 192.168.34.4 route-reflector-client
+ neighbor 192.168.35.5 remote-as 1000
+ neighbor 192.168.35.5 next-hop-self
+ neighbor 192.168.35.5 route-reflector-client
+
+-----
+R4
+-----
+router bgp 1000
+ neighbor 192.168.34.3 remote-as 1000
+ neighbor 192.168.34.3 next-hop-self
+
+-----
+R5
+-----
+router bgp 1000
+ neighbor 192.168.35.3 remote-as 1000
+ neighbor 192.168.35.3 next-hop-self
+ network 150.1.5.5 mask 255.255.255.255
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+5. Configure the Internal Network using OSPF & Redistribute (R3,R6)
+=============================================================
+-----
+R3
+-----
+router ospf 1
+ router-id 0.0.0.3
+ network 192.168.36.0 0.0.0.255 area 0
+ redistribute bgp 1000
+!
+router bgp 1000
+ redistribute ospf 1
+
+-----
+R6
+-----
+router ospf 1
+ router-id 0.0.0.6
+ network 192.168.36.0  0.0.0.255 area 0
+ network 150.1.6.6  0.0.0.0 area 0
+ +++++++++++++++++++++++++++++++++++++++++++++++++
+
+6. Configuring the connection between AS 1000 & AS 2000
+=======================================================
+-----
+R4
+-----
+router bgp 1000
+ neighbor 192.168.47.7 remote-as 2000
+ neighbor 192.168.48.8 remote-as 2000
+
+-----
+R7
+-----
+router bgp 2000
+ neighbor 192.168.47.4 remote-as 1000
+ network 150.1.7.7 mask 255.255.255.255
+ 
+
+-----
+R8
+-----
+router bgp 2000
+ neighbor 192.168.48.4 remote-as 1000
+ network 150.1.8.8 mask 255.255.255.255
++++++++++++++++++++++++++++++++++++++++++++++++++
+
+7. Configuring iBGP within AS 2000 (R7,R8,R9) EIGRP,IS-IS,OSPF
+=======================================================
+-----
+R7
+-----
+Interface Loopback10
+ ip address 10.1.7.7 255.255.255.255
+!
+router eigrp 10
+ network 192.168.79.0
+ network 10.1.7.7 0.0.0.0
+!
+
+router bgp 2000
+ neighbor 10.1.9.9 remote-as 2000
+ neighbor 10.1.9.9 update-source Loopback10
+ neighbor 10.1.9.9 next-hop-self
+
+-----
+R8
+-----
+Interface Loopback10
+ ip address 10.1.8.8 255.255.255.255
+!
+router eigrp 10
+ network 192.168.89.0
+network 10.1.8.8 0.0.0.0
+!
+
+router bgp 2000
+ neighbor 10.1.9.9 remote-as 2000
+ neighbor 10.1.9.9 update-source Loopback10
+ neighbor 10.1.9.9 next-hop-self
+
+-----
+R9
+-----
+Interface Loopback10
+ ip address 10.1.9.9 255.255.255.255
+
+router eigrp 10
+ network 192.168.79.0
+ network 192.168.89.0
+ network 10.1.9.9 0.0.0.0
+!
+router bgp 2000
+ neighbor Test peer-group
+ neighbor Test remote-as 2000
+ neighbor Test update-source Loopback10
+ neighbor Test next-hop-self
+ neighbor Test route-reflector-client
+ network 150.1.9.9 mask 255.255.255.255
+ bgp listen range 10.1.0.0/16 peer-group Test
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+8. Configuring the connection between AS 110 & AS 2000
+=======================================================
+-----
+R9
+-----
+router bgp 2000
+ neighbor 192.168.119.11 remote-as 110
+
+-----
+R11
+-----
+router bgp 110
+ neighbor 192.168.119.9 remote-as 2000
+ network 150.1.11.11 mask 255.255.255.255
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Lab # 2 - Configuring BGP Multi-Path – eBGP – iBGP
+=====================================================================
+-BGP operates in a single-path mode.  analyzes various BGP attributes 
+-(like AS path length, local preference, and IGP metric)
+ -to select the single best path for a given destination network 
+1. eBGP Multipaths - R10 towards AS 12
+2. iBGP Multipaths - R9 in AS 2000
+3.Multipaths with eBGP & iBGP neighbors - R3 in AS 1000
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Lab # 3 - Configuring to Redistribute iBGP Routes into IGP
+================================================================
+NOTE:
+-------
+- EBGP is Allowed to redistributed into IGP By default
+- IBGP is Not allowed to redistributed into IGP By default
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Lab # 4 - Configuring BGP Route Reflector with Next-Hop Changed
+-----------------------------------------------------------------------------------------------
+Note
+-------
+Unknown underlay (IBGP) Net 34 & Net 35 not Advertised in BGP 
+Can’t determine the best Route  (unknown) 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Lab # 6 - Route Filtering using AS Path-Filter
+=====================================================================
+Special Characters
++++++++++++++++++++++++++++
+
+ ^ 	- It searches at the beginning of the line  (Check from Left) (AS-Path start from Right)
+ $ 	- It searches at the end of the line 
+ _	- Has multiple characteristics. It means a  "^"  oR  "$"  oR  "  "  (Wild Card)
+
+ .*	- Any 
+
+    Syntax:
+  ip as-path access-list [1-500] [Deny/Permit] Expression
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Lab # 7 - Configuring Route Aggregation – Summary Only
+=====================================================
+R11
+-----
+Interface loopback201
+ ip address 211.1.4.1 255.255.255.0
+Interface loopback202
+ ip address 211.1.5.1 255.255.255.0
+Interface loopback203
+ ip address 211.1.6.1 255.255.255.0
+Interface loopback204
+ ip address 211.1.7.1 255.255.255.0
+!
+router bgp 110
+ network 211.1.4.0
+ network 211.1.5.0
+ network 211.1.6.0
+ network 211.1.7.0
+
+Requirement: 
+R11 should summarize/aggregate the above loopbacks and only send the summary towards its neighbors.
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Lab # 8 - Configuring Route Aggregation – Manual Filtering
+**************************************************************
+R9
+-----
+
+Interface loopback201
+ ip address 209.1.4.1 255.255.255.0
+Interface loopback202
+ ip address 209.1.5.1 255.255.255.0
+Interface loopback203
+ ip address 209.1.6.1 255.255.255.0
+Interface loopback204
+ ip address 209.1.7.1 255.255.255.0
+!
+router bgp 2000
+ network 209.1.4.0 mask 255.255.255.0
+ network 209.1.5.0 mask 255.255.255.0
+ network 209.1.6.0 mask 255.255.255.0
+ network 209.1.7.0 mask 255.255.255.0
+
+Requirement: R9 should send only the summary route for the above loopbacks towards eBGP neighbors. 
+It should only send the specifics towards the iBGP neighbors
+
+R9
+-----
+ip prefix-list EBGP-R11 deny 209.1.4.0/24
+ip prefix-list EBGP-R11 deny 209.1.5.0/24
+ip prefix-list EBGP-R11 deny 209.1.6.0/24
+ip prefix-list EBGP-R11 deny 209.1.7.0/24
+ip prefix-list EBGP-R11 permit 0.0.0.0/0 le 32
+
+                                     OR
+ip prefix-list EBGP-R11 deny 209.1.4.0/22 ge 24
+ip prefix-list EBGP-R11 permit 0.0.0.0/0 le 32
+
+
+ip prefix-list IBGP-R7-8 deny 209.1.4.0/22
+ip prefix-list IBGP-R7-8 permit 0.0.0.0/0 le 32
+
+router bgp 2000
+ aggregate-address 209.1.4.0 255.255.252.0
+ neighbor 192.168.119.11 prefix-list EBGP-R11 out
+ neighbor Test prefix-list  IBGP-R7-8 out
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ab # 9 - Configuring Route Aggregation – Suppress Maps
+**************************************************************
+R10
+-----
+Interface loopback201
+ ip address 210.1.4.1 255.255.255.0
+Interface loopback202
+ ip address 210.1.5.1 255.255.255.0
+Interface loopback203
+ ip address 210.1.6.1 255.255.255.0
+Interface loopback204
+ ip address 210.1.7.1 255.255.255.0
+!
+router bgp 100
+ network 210.1.4.0 mask 255.255.255.0
+ network 210.1.5.0 mask 255.255.255.0
+ network 210.1.6.0 mask 255.255.255.0
+ network 210.1.7.0 mask 255.255.255.0
+
+Requirement: 
+R10 should send the summary route for the above loopbacks towards eBGP neighbors along with the 210.1.6.0/24 specific network.
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Lab # 7 - Configuring Route Aggregation – (AS-Set option) Notes
+*******************************************************************
+-If you didn't specify any additional options to the command, it will create a new prefix in the BGP table, with an (empty AS_PATH).
+-The new prefix will automatically have the weight value of 32768 and get a special attribute called (ATOMIC_AGGREGATE assigned).
+-The (ATOMIC AGGREGATE) attribute is informational, and tells the other BGP speakers that this prefix is a result of route aggregation 
+-and some information (like AS_PATH , NEXT_HOP or other attributes) from the original prefixes may be missing.
+-BGP attaches another attribute called (AGGREGATOR) to the summarized prefix. 
+-This attribute specifies the AS number and the BGP router-ID of the aggregating router. Just like the ATOMIC AGGREGATE, this is informational Attribute
+***************************************************************************************************************
+AS-SET option:
+==================
+-Aggregation hides information previously found in the specific prefixes. This includes all attributes, such as  AS_PATH , NEXT_HOP and so on.
+-The new prefix appears to be originated from within the local AS.
+-This causes no problems if all specific prefixes belong to the local AS.
+-However, when you summarize prefixes learned from other AS , (information hiding may result in the following)
+-Suboptimal routing, due to the loss of path information, such as AS_PATH, MED and so on.
+-Routing loops, as removal of AS_PATH attribute and replacement it with an empty list will prevent BGP loop-detection mechanism from working properly.
+-To overcome it, it is possible to insert a special new member into the AS_PATH of the newly created summary prefix.
+-This can be done with an option called AS_SET
+-When BGP receives a prefix it scans the AS_PATH attribute. 
+-If the local AS number is found in any of the AS_SET or AS_SEQUENCE elements, the prefix is dropped. (loop prevention mechanism.)
+-By default, the aggregated address in BGP will not include the AS-Set information.
+-In order to force the use of this information, specify the as-set option
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+ 
+ 
+
+
+
